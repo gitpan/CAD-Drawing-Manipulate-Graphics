@@ -1,0 +1,105 @@
+Name
+    CAD::Drawing::Manipulate::Graphics - Gimp meets CAD?
+
+AUTHOR
+      Eric L. Wilhelm
+      ewilhelm at sbcglobal dot net
+      http://pages.sbcglobal.net/mycroft
+
+COPYRIGHT
+    This module is copyright (C) 2003 by Eric L. Wilhelm and A. Zahner Co.
+
+LICENSE
+    This module is distributed under the same terms as Perl. See the Perl
+    source package for details.
+
+    You may use this software under one of the following licenses:
+
+      (1) GNU General Public License
+        (found at http://www.gnu.org/copyleft/gpl.html)
+      (2) Artistic License
+        (found at http://www.perl.com/pub/language/misc/Artistic.html)
+
+NO WARRANTY
+    This software is distributed with ABSOLUTELY NO WARRANTY. The author and
+    his employer will in no way be held liable for any loss or damages
+    resulting from its use.
+
+Modifications
+    The source code of this module is made freely available and
+    distributable under the GPL or Artistic License. Modifications to and
+    use of this software must adhere to one of these licenses. Changes to
+    the code should be noted as such and this notification (as well as the
+    above copyright information) must remain intact on all copies of the
+    code.
+
+    Additionally, while the author is actively developing this code,
+    notification of any intended changes or extensions would be most helpful
+    in avoiding repeated work for all parties involved. Please contact the
+    author with any such development plans.
+
+Changes
+      0.01 First public release
+
+Methods
+    All of these are CAD::Drawing methods (I force my own inheritance:)
+
+  image_init
+
+    Initialize the image at $addr based on the value at the fullpath key.
+    This establishes the contained Image::Magick object and loads the image
+    into memory in the image_handle key.
+
+      $drw->image_init($addr);
+
+  image_crop
+
+    Crops an image and its definition (actually, changes its insert point)
+    according to the points given by @crop_points (which maybe had better be
+    within the object (but I don't really sweat that.))
+
+    @crop_points should be in world coordinates as follows:
+
+      @crop_points = (
+        [$lower_left_x , $lower_left_y ],
+            [$upper_right_x, $upper_right_y],
+            );
+      # note that you can get these as 
+      # ($drw->getExtentsRec($something))[0,2]
+
+      $drw->image_crop($addr, \@crop_points);
+
+  image_scale
+
+    Scales both the image and the definition by $scale, starting at
+    @base_point.
+
+      $drw->image_scale($addr, $scale, \@base_point);
+
+  image_rotate
+
+    This leaves the definition orthoganal, expands the underlying image
+    object, and resets the insert point and size properties accordingly.
+
+      $drw->image_rotate($addr, $angle, \@point);
+
+    The current implementation does not handle the change to the image
+    clipping boundary.
+
+  image_swap_context
+
+    This involves a scaling of the image (the contexts should be aligned
+    over each other at this point or everything will go to hell.) Do your
+    own move / rotate / crop before calling this, because all this does is
+    to scale the underlying image object such that the vec property of the
+    image definition at $dest_addr can be used correctly.
+
+    Note that this does not "swap" the image to $dest_addr, rather it uses
+    the image definition of $dest_addr to change the image object and
+    definition at $source_addr.
+
+    Also note that the image must fit completely inside (I think) of the
+    destination in order for the composite to work correctly.
+
+      $drw->image_swap_context($source_addr, $dest_addr);
+
